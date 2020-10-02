@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
-
+import urllib
+import requests
 
 # item class included here 
 class DmozItem(scrapy.Item):
@@ -20,7 +21,7 @@ class DmozSpider(scrapy.Spider):
     name = "dmoz"
     page_number = 2
     start_urls = [
-    'https://www.simplyhired.com/search?q=&l=Austin%2C+TX&job=rL-FPHmOlO8S0LDRzJZQ1C1-GcuCOZ1Z6Au5yRSFG3M7X_c1ZcOmGA'
+    'https://www.simplyhired.com/search?q=java&l=Philadelphia%2C+PA&job=fYxbZPaOvxUi_StIPQGdAhmm__9ReBI5jbVy7amchpkhgoG5xdkwUA'
     ]
 
     BASE_URL = 'https://www.simplyhired.com'
@@ -30,7 +31,7 @@ class DmozSpider(scrapy.Spider):
          for link in links:
             absolute_url = self.BASE_URL + link
             yield scrapy.Request(absolute_url, callback=self.parse_attr)
-         next_page = "https://www.simplyhired.com/search?l=Austin%2C+TX&pn="+str(DmozSpider.page_number)+"&job=380F5vdkwZikDiGf3s4a_3eH3-C2X4PGkJbB_JUmDwV0XnuKtWRJjw"
+         next_page = "https://www.simplyhired.com/search?q=java&l=Philadelphia%2C+PA&pn="+str(DmozSpider.page_number)+"&job=fYxbZPaOvxUi_StIPQGdAhmm__9ReBI5jbVy7amchpkhgoG5xdkwUA"
 
          if DmozSpider.page_number<=91:
             DmozSpider.page_number +=1
@@ -52,7 +53,10 @@ class DmozSpider(scrapy.Spider):
             text = text.rstrip("\n")
             text_list=text_list+text
         item["Description"] = text_list
-        item["ApplyLink"] = response.url
+        links = response.css('a.btn-apply').xpath("@href").extract()
+        # final_url = urllib.request.urlopen("https://www.simplyhired.com"+links[0],None,1).geturl()
+        final_url = requests.get("https://www.simplyhired.com"+links[0])
+        item["ApplyLink"] = final_url.url
         item["salary"]=response.css("span.viewjob-labelWithIcon::text").extract()
         
         return item
