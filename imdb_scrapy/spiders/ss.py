@@ -44,7 +44,7 @@ class DmozSpider(scrapy.Spider):
             item["Logo"] = DmozSpider.BASE_URL+""+logo[0]
         except:
             item["Logo"] = 'none'
-        item["Title"] = response.css("h2.viewjob-jobTitle::text").extract() 
+        item["Title"] = response.css("div.viewjob-jobTitle::text").extract() 
         item["Location"] = response.css("div.viewjob-labelWithIcon::text")[1].extract()
         item["Company"] = response.css("div.viewjob-labelWithIcon::text")[0].extract()
         aa=response.css("div.p::text").extract()
